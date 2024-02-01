@@ -22,10 +22,10 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Mural de Eventos</a>
+                <a class="nav-link {% if request.path == '/' %} active {% endif %}" aria-current="page" href="/">Mural de Eventos</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'create_event' %}">Crear un nuevo evento</a>
+                <a class="nav-link {% if request.path == '/mis_eventos' %} active {% endif %}" href="{% url 'mis_eventos' %}">Mis Eventos</a>
               </li>
               
             </ul>
@@ -33,16 +33,16 @@
                 {% if user.is_authenticated %}
                 
               <li class="nav-item">
-                <a class="nav-link" href="#">Cerrar Sesión</a>
+                <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
               </li>
               {% else %}
 
               <li class="nav-item">
-                <a class="nav-link" href="#">Iniciar Sesión</a>
+                <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
               </li>
 
               <li class="nav-item">
-                <a class="nav-link" href="#">Registrarse</a>
+                <a class="nav-link" href="{% url 'signup' %}">Registrarse</a>
               </li>
               {% endif %}
             </ul>
@@ -57,6 +57,14 @@
       </nav>
 
       <div class="container mt-5 mb-5">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}{% endblock %}
       </div>
 </body>

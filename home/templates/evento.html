@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load static %}
+
+<div class="card mb-3">
+    {% if evento.imagen %}
+    <img src="{{ evento.imagen.url }}" class="card-img-top" alt="imagen de {{ evento.imagen.title }}" style="max-height: 70vh; object-fit: cover">
+    {% else %}
+    <img src="{% static 'default.svg' %}" class="card-img-top" alt="imagen de {{ evento.imagen.title }}" style="max-height: 70vh; object-fit: cover">
+    {% endif %}
+    <div class="card-body">
+        <h2>{{ evento.titulo }}</h2>
+        <hr>
+        <h5>Fecha del evento: {{ evento.fecha|default:'El usuario no especificó una fecha para el evento' }} {% if evento.todo_el_dia  %} Todo el día {% elif evento.hora_inicio and evento.hora_fin %} Desde las {{ evento.desde|time:"g:i A" }} Hasta las {{ evento.hasta|time:"g:i A" }} {% else %}{% endif %}</h5>
+        <hr>
+        <h5>Organizador del Evento: {{ evento.organizador }}</h5>
+        <hr>
+        <h5>Lugar: {{ evento.lugar }}</h5>
+        <hr>
+        <h5>Personas que han reservado su cupo: {{ evento.cupos }}</h5>
+        <hr>
+        <h5>Cupos Máximos: {{ evento.cupos_maximos|default:'Ilimitado' }}</h5>
+        <hr>
+        <h5>Precio: {{ evento.precio }}</h5>
+        <hr>
+        <h5>Información Adicional Sobre el Evento:</h5>
+        <blockquote class="blockquote">
+            <p>{{ evento.adicional|default:"El organizador no poporcionó información adicional" }}</p>
+          </blockquote>
+        <hr>
+        {% if organizador %}
+        <h5>Lista de personas que han reservado su cupo para asistir al evento:</h5>
+        <table class="table table-sm table-hover mb-5">
+            <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Nombre de Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Correo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for asistente in evento.asistentes.all %}
+                <tr>
+                  <th scope="row">{{ forloop.counter }}</th>
+                  <td>{{ asistente.username }}</td>
+                  <td>{{ asistente.first_name }}</td>
+                  <td> {{ asistente.last_name }}</td>
+                  <td>{{ asistente.email }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+        <hr>
+        <div class="row">
+            <div class="col d-flex justify-content-center">
+                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#modal-evento">Editar
+                    Evento</button>
+        
+                <div class="modal fade" id="modal-evento" tabindex="-1" aria-labelledby="modal-evento-label" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modal-evento-label">Actualizar Evento</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                    <div class="d-grid gap-2 mt-3">
+                                        <button type="submit" class="btn btn-outline-success" id="btn-publicar-evento">Actualizar Evento</button>
+                                    </div>
+                                </form>
+        
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+            </div>
+            <div class="col d-flex justify-content-center">
+                <a href="{% url 'eliminar_evento' evento.id %}" class="btn btn-outline-danger w-100">Eliminar Evento</a>
+            </div>
+        </div>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <div class="row d-flex justify-content-center">
+            {% if request.user in evento.asistentes.all %}
+        
+            <a class="btn btn-dark w-25 mt-5" href="{% url 'dejar_de_asistir' evento.id %}">Ya no voy a asistir al evento</a>
+        
+            {% else %}
+        
+            <a class="btn btn-outline-dark w-25 mt-5" href="{% url 'asistir' evento.id %}">Reservar mi cupo para asistir al evento</a>
+        
+            {% endif %}
+        
+        </div>
+        
+        {% endif %}
+        
+        <p class="card-text"><small class="text-body-secondary">Última actualización: {{ evento.updated|naturaltime }}</small></p>
+    </div>
+</div>
+
+<script src="{% static 'formScript.js' %}"></script>
+
+{% endblock content %}
