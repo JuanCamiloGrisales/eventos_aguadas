@@ -34,4 +34,19 @@ Organizador: {{ evento.organizador }}
 
     {% endfor %}
 
+    <script>
+        document.querySelector('.form-control').addEventListener('input', function (e) {
+            let searchValue = e.target.value.toLowerCase();
+            let cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                let title = card.querySelector('.card-title').textContent.toLowerCase();
+                if (title.includes(searchValue)) {
+                    card.parentElement.style.display = '';
+                } else {
+                    card.parentElement.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </div>
